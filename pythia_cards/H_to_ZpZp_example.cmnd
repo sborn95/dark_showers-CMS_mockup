@@ -1,0 +1,54 @@
+        ##############################################################################################
+        # Pythia 8 card for CMS H->A'A'->(mu+mu-)(mu+mu-)
+        # Higgs decays to two dark photons
+        # Input mass scale: 125 GeV
+        # lines starting with ! or # are commented out
+	# (mass [GeV], lifetime [mm]) pairs for the CMS data scouting analysis:
+	# {(2,100), (8,10), (15,1), (8,1), (8,100)}
+        ##############################################################################################
+          
+        ! Settings used in the main program.
+        Main:numberOfEvents = 10                     ! number of events to generate
+        Beams:eCM = 13000.                              ! CM energy of collision
+
+        ! Settings related to output in init(), next() and stat().
+        Init:showChangedSettings = on                   ! list changed settings
+        Init:showChangedParticleData = off              ! list changed particle data
+        Next:numberCount = 1000                         ! print message every n events
+        Next:numberShowInfo = 0                         ! print event information n times
+        Next:numberShowProcess = 0                      ! print process record n times
+        Next:numberShowEvent = 1                        ! print event record n times
+
+        ! For debugging purposes only
+        ! PartonLevel:ISR = off
+        ! PartonLevel:FSR = off
+        ! PartonLevel:MPI = off
+        ! HadronLevel:all = off
+
+        ! Production settings
+        ! decay the Higgs to two dark photons, turn off all SM branching ratios
+        HiggsSM:gg2H = on
+        25:m0 =125
+	25:addChannel = 1 1.0 101 999999 999999
+        25:0:onMode=0
+        25:1:onMode=0
+        25:2:onMode=0
+        25:3:onMode=0
+        25:4:onMode=0
+        25:5:onMode=0
+        25:6:onMode=0
+        25:7:onMode=0
+        25:8:onMode=0
+        25:9:onMode=0
+        25:10:onMode=0
+        25:11:onMode=0
+        25:12:onMode=0
+        25:13:onMode=0
+        
+        !Details about dark photon decays
+	999999:all = GeneralResonance void 1 0 0 15. 0.001 0. 0. 0.        ! dark photon A'
+        ! 999999:addChannel = 1 0.451 91 11 -11              ! A' -> e+ e-
+        999999:addChannel = 1 1. 91 13 -13              ! A' -> mu+ mu-
+        ! 999999:addChannel = 1 0.105 91 211 -211              ! A' -> pi+ pi-
+        999999:tau0 = 1.                                         ! proper lifetime, in mm
+

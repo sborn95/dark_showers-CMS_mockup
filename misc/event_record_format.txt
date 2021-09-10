@@ -1,0 +1,23 @@
+Text event record description for sborn CMS B to LLP models -- August 29, 2021
+##################################################################################################################################################################################################################
+I'm storing the information I use in my analysis as follows, 
+
+my_type event_index particle_index pid px py pz pT eta phi e m tau tProd xProd yProd zProd tDec xDec yDec zDec
+
+##################################################################################################################################################################################################################
+Example line: A muon produced in the first event that was the 842nd particle pythia recorded for that event.
+
+1 0 842 13 -9.0048858931506235e+00 7.9269147624248424e+00 -3.5197291278018469e+01 1.1996830731464540e+01 -1.7973282738303999e+00 2.4197741554781396e+00 3.7185809456628583e+01 1.0566000000000000e-01 2.2506413704714159e+05 2.6984923678036449e+02 -6.3476049631723505e+01 6.3766024240381455e+01 -2.5416610536923906e+02 7.9208978118738472e+07 -1.9181180954280976e+07 1.6885017679060340e+07 -7.4973261812178716e+07 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00
+
+#################################################################################################################################################################################################################
+Descriptions:
+
+my_type: 
+	- Dark matter particle (value = 0)
+	- One of the muons produced by the decay of the dark matter particle (value = 1)
+	- A particle that would leave a track but, isn't a dark matter decay muon (value = 2)
+	- A jet (value = 3)
+
+#################################################################################################################################################################################################################
+Notes:
+- Some of the kinematic variables above aren't meaningful/provided by pythia for jets (i.e. m, tau, tProd, etc.). I write "0." to my event record for jets in those positions so as to treat jets/particles on the same footing when I turn my text event record into a numpy array for the analysis. 
