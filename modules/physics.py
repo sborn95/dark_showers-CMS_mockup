@@ -2,7 +2,7 @@ import numpy as np
 import vmath as vm
 from math import *
 from copy import deepcopy
-from vhepmc_evt_parser import data_set
+from event_parser import data_set
 
 def comb_pT(d1, d2):
     p = d1.p + d2.p

@@ -19,11 +19,15 @@ def vec4_dphi(v1, v2):
     c_v2 = deepcopy(v2)
     c_v1[:,3] = 0. #Note: operations like this need deepcopy b/c pass by ref.
     c_v2[:,3] = 0.
+
     ang = vec4_dotprod(c_v1,c_v2)/(vec4_norm(c_v1)*vec4_norm(c_v2))
-    mask = (ang < 1.1) & (ang > 1.) ### ????
+    #Sometimes greater than or less than 1 - shouldn't be possible.
+    #it's minimal, so I'm assuming its a rounding area.
+    mask = (ang < 1.1) & (ang > 1.) 
     ang[mask] = 1.
     mask = (ang > -1.1) & (ang < -1.)
     ang[mask] = -1.
+    
     ang = np.arccos(ang)
     return ang
 

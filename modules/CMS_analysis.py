@@ -1,6 +1,6 @@
 import numpy as np
 from copy import deepcopy
-from vhepmc_evt_parser import data_set
+from event_parser import data_set
 import basic_plotter as plotter
 import vmath
 import physics as phys
@@ -9,52 +9,52 @@ import time
 #Note: OS is implicit here
 def list_choices():
     print("Set filter by inputting an array of choices")
-    print("Event:0:L1T_cut")
-    print("Event:1:HLT_lxy_cut")
-    print("Pair:2:HLT_iso_cut")
-    print("Pair:3:HLT_dphi_muonsDV_cut")
-    print("Pair:4:HLT_dphi_muons_cut")
-    print("Pair:5:HLT_pileup_cut")
-    print("Pair:6:HLT_dxy_cut")
+    print("Event:0:trig")
+    print("Event:1:lxy_cut")
+    print("Pair:2:iso_cut")
+    print("Pair:3:dphi_muonsDV_cut")
+    print("Pair:4:dphi_muons_cut")
+    print("Pair:5:pileup_cut")
+    print("Pair:6:dxy_cut")
 
 def print_cut_selection(arr):
     print("Cut choices")
     if(arr[0]):
-        print("True:L1T_cut")
+        print("True:trig")
     else:
-        print("False:L1T_cut")
+        print("False:trig")
     
     if(arr[1]):
-        print("True:HLT_lxy_cut")
+        print("True:lxy_cut")
     else:
-        print("False:HLT_lxy_cut")
+        print("False:lxy_cut")
     
     if(arr[2]):
-        print("True:HLT_iso_cut")
+        print("True:iso_cut")
     else:
-        print("False:HLT_iso_cut")
+        print("False:iso_cut")
 
     if(arr[3]):
-        print("True:HLT_dphi_muonsDV_cut")
+        print("True:dphi_muonsDV_cut")
     else:
-        print("False:HLT_dphi_muonsDV_cut")
+        print("False:dphi_muonsDV_cut")
 
     if(arr[4]):
-        print("True:HLT_dphi_muons_cut")
+        print("True:dphi_muons_cut")
     else:
-        print("False:HLT_dphi_muons_cut")
+        print("False:dphi_muons_cut")
     
     if(arr[5]):
-        print("True:HLT_pileup_cut")
+        print("True:pileup_cut")
     else:
-        print("False:HLT_pileup_cut")
+        print("False:pileup_cut")
     
     if(arr[6]):
-        print("True:HLT_dxy_cut")
+        print("True:dxy_cut")
     else:
-        print("False:HLT_dxy_cut")
+        print("False:dxy_cut")
 
-def L1T_cutA(mu, amu):
+def trigA(mu, amu):
     #Calculate muon deltaR
     muon_deltaR = phys.deltaR(mu, amu)
     cut_pT = (mu.pT > 4.) & (amu.pT > 4.)
@@ -62,14 +62,14 @@ def L1T_cutA(mu, amu):
     cut = cut_pT & cut_deltaR
     return cut
 
-def L1T_cutB(mu, amu):
+def trigB(mu, amu):
     muon_deltaR = phys.deltaR(mu, amu)
     cut_eta = (np.abs(mu.eta) < 1.4) & (np.abs(amu.eta) < 1.4)
     cut_deltaR = muon_deltaR < 1.4
     cut = cut_eta & cut_deltaR
     return cut
 
-def L1T_cutC(mu, amu):
+def trigC(mu, amu):
     c1 = mu.pT > 15.
     c2 = mu.pT > 7.
     c3 = amu.pT > 15.
@@ -78,22 +78,22 @@ def L1T_cutC(mu, amu):
     cut = (c1 & c4) | (c2 & c3)  
     return cut
 
-def L1T_cut(mu, amu):
-    cA = L1T_cutA(mu, amu)
-    cB = L1T_cutB(mu, amu)
-    cC = L1T_cutC(mu, amu)
+def trig(mu, amu):
+    cA = trigA(mu, amu)
+    cB = trigB(mu, amu)
+    cC = trigC(mu, amu)
     cD = (mu.pT > 3.) & (amu.pT > 3.) & (np.abs(mu.eta) < 2.4) & (np.abs(amu.eta) < 2.4)
 
     cut = (cA | cB | cC) & cD
     return cut
 
-def HLT_lxy_cut(mu):
+def lxy_cut(mu):
     #Note: Both mu and amu have the same lxy
     lxy = phys.lxy(mu)
     cut = lxy < 110. #mm here, CMS paper is in cm
     return cut
 
-def HLT_dphi_muonsDV_cut(mu, amu, n):
+def dphi_muonsDV_cut(mu, amu, n):
     max_dphi = 0.
 
     if(n == 1):
@@ -111,8 +111,7 @@ def HLT_dphi_muonsDV_cut(mu, amu, n):
     cut = dphi < max_dphi 
     return cut
 
-def HLT_iso_cut(mu, amu, tr, jets, n): 
-    #Right now using strictest isolation criteria
+def iso_cut(mu, amu, tr, jets, n): 
     R = 0.3
     mu_iso = phys.iso(mu, tr, R, 'track')
     amu_iso = phys.iso(amu, tr, R, 'track')
@@ -128,17 +127,17 @@ def HLT_iso_cut(mu, amu, tr, jets, n):
     cut = jet_cut | iso_cut
     return cut
 
-def HLT_dphi_muons_cut(mu, amu):
+def dphi_muons_cut(mu, amu):
     dphi = vmath.dphi(mu.phi, amu.phi)
     cut = dphi < 2.8
     return cut
 
-def HLT_pileup_cut(mu, amu):
+def pileup_cut(mu, amu):
     pileup = phys.pileup(mu,amu)
     cut = pileup < 1.25
     return cut
 
-def HLT_dxy_cut(sigma, mu, amu, n):
+def dxy_cut(sigma, mu, amu, n):
     ##See the bottom of CMS paper page 5
     sig = sigma # 1mm sigma
     mu_dxy = phys.dxy(mu)
@@ -175,24 +174,24 @@ def event_cut(arr, mu, amu):
     cut = np.ones(mu.size()).astype(bool)
     
     if (arr[0]):
-        cut = cut & L1T_cut(mu, amu) 
+        cut = cut & trig(mu, amu) 
     if (arr[1]):
-        cut = cut & HLT_lxy_cut(mu)
+        cut = cut & lxy_cut(mu)
     return cut
 
 def pair_cut(sigma, arr, mu, amu, tracks, jets, n):
     cut = np.ones(mu.size()).astype(bool)
 
     if (arr[2]):
-        cut = cut & HLT_iso_cut(mu, amu, tracks, jets, n)
+        cut = cut & iso_cut(mu, amu, tracks, jets, n)
     if (arr[3]):
-        cut = cut & HLT_dphi_muonsDV_cut(mu, amu, n)
+        cut = cut & dphi_muonsDV_cut(mu, amu, n)
     if (arr[4]):
-        cut = cut & HLT_dphi_muons_cut(mu, amu)
+        cut = cut & dphi_muons_cut(mu, amu)
     if (arr[5]):
-        cut = cut & HLT_pileup_cut(mu, amu)
+        cut = cut & pileup_cut(mu, amu)
     if (arr[6]):
-        cut = cut & HLT_dxy_cut(sigma, mu, amu, n)
+        cut = cut & dxy_cut(sigma, mu, amu, n)
 
     return cut
 
@@ -241,6 +240,8 @@ def get_cms_eff(sigma, dark_photons, muons, antimuons, tracks, jets, arr):
     r_entries = muons.find_repeats()
     r_dp, s_dp = dark_photons.split_set(r_entries)
     r_mu, s_mu = muons.split_set(r_entries)
+    print("r: " + str(r_mu.size()))
+    print("s: " + str(s_mu.size()))
     r_amu, s_amu = antimuons.split_set(r_entries)
 
     #Run all single entries through cuts 
@@ -274,16 +275,17 @@ def get_cms_eff(sigma, dark_photons, muons, antimuons, tracks, jets, arr):
     br_amu = er_amu.get(~mask).append(or_amu.get(mask))
     ar_dp = er_dp.get(mask).append(or_dp.get(~mask))
     br_dp = er_dp.get(~mask).append(or_dp.get(mask))
-    evt_cut = np.append(evt_cut[mask], evt_cut[~mask])
+    evt_cutA = np.append(evt_cut[mask], evt_cut[~mask])
+    evt_cutB = np.append(evt_cut[~mask], evt_cut[mask])
 
     #Next run er events through with stringent conditions, 
     #and or through with loosened conditions
     ar_pair_cut = pair_cut(sigma, arr, ar_mu, ar_amu, tracks, jets, 1)
     br_pair_cut = pair_cut(sigma, arr, br_mu, br_amu, tracks, jets, 2)
-    final_cut = np.append(final_cut, (ar_pair_cut & evt_cut))
-    final_cut = np.append(final_cut, (br_pair_cut & evt_cut))
-    final_evt_cut = np.append(final_evt_cut, evt_cut)
-    final_evt_cut = np.append(final_evt_cut, evt_cut)
+    final_cut = np.append(final_cut, (ar_pair_cut & evt_cutA))
+    final_cut = np.append(final_cut, (br_pair_cut & evt_cutB))
+    final_evt_cut = np.append(final_evt_cut, evt_cutA)
+    final_evt_cut = np.append(final_evt_cut, evt_cutB)
     
     #Finally, append all particles
     final_dp = final_dp.append(ar_dp)
